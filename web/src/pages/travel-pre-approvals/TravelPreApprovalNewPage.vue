@@ -145,11 +145,11 @@
         <BranchAutocomplete
           v-model="travelAuthorizationPreApprovalAttributes.branch"
           label="Branch"
-          :disabled="isNil(travelAuthorizationPreApprovalAttributes.department)"
+          :disabled="!travelAuthorizationPreApprovalAttributes.department"
           :hint="
-            isNil(travelAuthorizationPreApprovalAttributes.department)
-              ? 'Select a department to unlock'
-              : 'Search for a branch'
+            travelAuthorizationPreApprovalAttributes.department
+              ? 'Search for a branch'
+              : 'Select a department to unlock'
           "
           :where="branchWhere"
           variant="outlined"
@@ -160,7 +160,7 @@
     </v-row>
 
     <v-alert
-      v-if="isNil(travelAuthorizationPreApprovalAttributes.department)"
+      v-if="!travelAuthorizationPreApprovalAttributes.department"
       type="info"
       class="mt-4"
     >
@@ -222,14 +222,15 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from "vue"
+import { computed, ref, useTemplateRef } from "vue"
 import { isNil } from "lodash"
 import { useRouter } from "vue-router"
 import { useDisplay } from "vuetify"
 
-import travelAuthorizationPreApprovalsApi from "@/api/travel-authorization-pre-approvals-api"
-
 import { required } from "@/utils/validators"
+
+import type { TravelAuthorizationPreApprovalProfileCreationAttributes } from "@/api/travel-authorization-pre-approval-profile-creation-attributes"
+import travelAuthorizationPreApprovalsApi from "@/api/travel-authorization-pre-approvals-api"
 
 import useBreadcrumbs from "@/use/use-breadcrumbs"
 import useCurrentUser from "@/use/use-current-user"
@@ -244,28 +245,32 @@ import LocationsAutocomplete from "@/components/locations/LocationsAutocomplete.
 import TravelPurposeTextSelect from "@/components/travel-purposes/TravelPurposeTextSelect.vue"
 import TravelAuthorizationPreApprovalTravelerAttributesFormCard from "@/components/travel-authorization-pre-approvals/TravelAuthorizationPreApprovalTravelerAttributesFormCard.vue"
 
-/** @typedef {import('@/api/travel-authorization-pre-approvals-api').TravelAuthorizationPreApproval} TravelAuthorizationPreApproval */
-
 const { smAndDown } = useDisplay()
 
-/** @type {Partial<TravelAuthorizationPreApproval>} */
-const travelAuthorizationPreApprovalAttributes = ref({
-  estimatedCost: undefined,
-  location: undefined,
-  department: undefined,
-  branch: undefined,
-  purpose: undefined,
-  reason: undefined,
-  startDate: undefined,
-  endDate: undefined,
+type TravelAuthorizationPreApprovalDraft = {
+  purpose?: string
+  location?: string
+  estimatedCost?: string
+  reason?: string
+  startDate?: string
+  endDate?: string
+  month?: string
+  department?: string
+  branch?: string
+  isOpenForAnyDate: boolean
+  isOpenForAnyTraveler: boolean
+  numberTravelers?: number
+  travelerNotes?: string
+}
+
+const travelAuthorizationPreApprovalAttributes = ref<TravelAuthorizationPreApprovalDraft>({
   isOpenForAnyDate: false,
-  month: undefined,
   isOpenForAnyTraveler: false,
-  numberTravelers: undefined,
-  travelerNotes: undefined,
 })
 
-const travelAuthorizationPreApprovalProfilesAttributes = ref([])
+const travelAuthorizationPreApprovalProfilesAttributes = ref<
+  TravelAuthorizationPreApprovalProfileCreationAttributes[]
+>([])
 
 const exactTravelDateKnown = ref(true)
 
@@ -306,7 +311,7 @@ function resetDependentFieldsBranch() {
   travelAuthorizationPreApprovalProfilesAttributes.value = []
 }
 
-const headerActionsFormCard = ref<InstanceType<typeof HeaderActionsFormCard> | null>(null)
+const headerActionsFormCard = useTemplateRef("headerActionsFormCard")
 const isLoading = ref(false)
 const snack = useSnack()
 const router = useRouter()
@@ -315,7 +320,8 @@ async function createTravelAuthorizationPreApproval() {
   if (isNil(headerActionsFormCard.value)) return
 
   const { valid } = await headerActionsFormCard.value.validate()
-  if (!valid) {
+  const { department, estimatedCost, location } = travelAuthorizationPreApprovalAttributes.value
+  if (!valid || !department?.trim() || !estimatedCost?.trim() || !location) {
     snack.warning("Please fill in all required fields.")
     return
   }
@@ -325,6 +331,9 @@ async function createTravelAuthorizationPreApproval() {
   try {
     await travelAuthorizationPreApprovalsApi.create({
       ...travelAuthorizationPreApprovalAttributes.value,
+      department,
+      estimatedCost: Number(estimatedCost),
+      location,
       profilesAttributes: travelAuthorizationPreApprovalProfilesAttributes.value,
     })
     snack.success("Travel pre-approval created.")

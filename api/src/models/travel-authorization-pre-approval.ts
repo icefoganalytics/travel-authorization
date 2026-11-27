@@ -15,6 +15,7 @@ import {
   Index,
   NotNull,
   PrimaryKey,
+  Table,
   ValidateAttribute,
 } from "@sequelize/core/decorators-legacy"
 
@@ -34,6 +35,9 @@ export enum TravelAuthorizationPreApprovalStatuses {
   DECLINED = "declined",
 }
 
+@Table({
+  tableName: "travel_authorization_pre_approvals",
+})
 export class TravelAuthorizationPreApproval extends Model<
   InferAttributes<TravelAuthorizationPreApproval>,
   InferCreationAttributes<TravelAuthorizationPreApproval>
@@ -69,7 +73,8 @@ export class TravelAuthorizationPreApproval extends Model<
   declare location: string
 
   @Attribute(DataTypes.STRING(255))
-  declare department: string | null
+  @NotNull
+  declare department: string
 
   @Attribute(DataTypes.STRING(255))
   declare branch: string | null
@@ -152,6 +157,11 @@ export class TravelAuthorizationPreApproval extends Model<
     inverse: "preApproval",
   })
   declare profiles?: NonAttribute<TravelAuthorizationPreApprovalProfile[]>
+
+  static isResolvedDepartment(department: unknown): department is string {
+    // The legacy backfill marks missing ownership without assigning a department.
+    return typeof department === "string" && department.trim() !== "" && department !== "UNKNOWN"
+  }
 
   static establishScopes(): void {
     this.addScope("availableForSubmission", () => {

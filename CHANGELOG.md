@@ -18,6 +18,7 @@ Changes planned for the next release, since v2025.9.15.1.
 
 ### Changed
 
+- Travel planners select a pre-approval’s department once. Travelers added to it use that department, and editing the pre-approval cannot move it to another department.
 - Frontend lint now checks standalone CSS and Vue style blocks for CSS errors alongside existing script and template checks.
 - Booking-history refreshes remove only events missing from a successful source scan. Reappearing events create new local records while deleted records and saved invoices remain unchanged. Failed refreshes leave the previous local history intact.
 - Familiar colors, cream cards, and existing layouts are preserved. Errors appear consistently in red, and notifications have readable text and a working Close action.

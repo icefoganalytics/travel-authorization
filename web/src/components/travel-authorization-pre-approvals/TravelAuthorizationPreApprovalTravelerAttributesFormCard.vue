@@ -74,6 +74,9 @@
           :items="modelValue"
           hide-default-footer
         >
+          <template #item.department>
+            {{ department }}
+          </template>
           <template #item.actions="{ index }">
             <v-btn
               title="Remove traveler profile"
@@ -97,17 +100,12 @@ import { isEmpty, isNil } from "lodash"
 import HeaderActionsFormCard from "@/components/common/HeaderActionsFormCard.vue"
 import YgEmployeeAutocomplete from "@/components/yg-employees/YgEmployeeAutocomplete.vue"
 
-/** @typedef {import("@/api/travel-authorization-pre-approvals-api").TravelAuthorizationPreApprovalProfile} TravelAuthorizationPreApprovalProfile */
-
 const props = defineProps({
   department: {
     type: String,
     required: true,
   },
   modelValue: {
-    /**
-     * @type {Partial<TravelAuthorizationPreApprovalProfile>[]}
-     */
     type: Array,
     default: () => [],
   },
@@ -181,28 +179,23 @@ function toggleExactTravelerKnown(value) {
 }
 
 function addTravelerProfileAttributes() {
-  if (isNil(travelerName.value) && isNil(numberTravelersLocal.value)) {
-    return
-  }
-
-  let newProfileAttributes
-
+  let profileName
   if (exactTravelerKnown.value) {
-    newProfileAttributes = {
-      profileName: travelerName.value,
-      department: props.department,
-      branch: props.branch,
-    }
+    if (!travelerName.value) return
+
+    profileName = travelerName.value
   } else {
+    if (isNil(numberTravelersLocal.value)) return
+
     const profilePrefix = [props.department, props.branch].filter(Boolean).join(" ")
     // TODO: consider if we should be adding one record for each "number of travelers"?
     // TODO: consider if we should be including the "number of travelers" in the profile name
-    const profileName = `${profilePrefix} staff`
-    newProfileAttributes = {
-      profileName,
-      department: props.department,
-      branch: props.branch,
-    }
+    profileName = `${profilePrefix} staff`
+  }
+
+  const newProfileAttributes = {
+    profileName,
+    branch: props.branch,
   }
 
   emit("update:modelValue", [...props.modelValue, newProfileAttributes])

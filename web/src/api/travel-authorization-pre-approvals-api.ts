@@ -5,7 +5,7 @@ import {
   type QueryOptions,
   type WhereOptions,
 } from "@/api/base-api"
-import type { TravelAuthorizationPreApprovalProfile } from "@/api/travel-authorization-pre-approval-profiles-api"
+import type { TravelAuthorizationPreApprovalProfileCreationAttributes } from "@/api/travel-authorization-pre-approval-profile-creation-attributes"
 import type { TravelAuthorizationPreApprovalSubmission } from "@/api/travel-authorization-pre-approval-submissions-api"
 
 /** Keep in sync with api/src/models/travel-authorization-pre-approval.ts */
@@ -31,7 +31,7 @@ export type TravelAuthorizationPreApproval = {
   submissionId: number | null
   estimatedCost: number
   location: string
-  department: string | null
+  department: string
   branch: string | null
   purpose: string | null
   reason: string | null
@@ -115,6 +115,33 @@ export type TravelAuthorizationPreApprovalsQueryOptions = QueryOptions<
   TravelAuthorizationPreApprovalFiltersOptions
 >
 
+type TravelAuthorizationPreApprovalUpdateAttributes = Partial<
+  Pick<
+    TravelAuthorizationPreApproval,
+    | "estimatedCost"
+    | "location"
+    | "branch"
+    | "purpose"
+    | "reason"
+    | "startDate"
+    | "endDate"
+    | "isOpenForAnyDate"
+    | "month"
+    | "isOpenForAnyTraveler"
+    | "numberTravelers"
+    | "travelerNotes"
+    | "status"
+  >
+>
+
+export type TravelAuthorizationPreApprovalCreationAttributes = Pick<
+  TravelAuthorizationPreApproval,
+  "department" | "estimatedCost" | "location"
+> &
+  TravelAuthorizationPreApprovalUpdateAttributes & {
+    profilesAttributes: TravelAuthorizationPreApprovalProfileCreationAttributes[]
+  }
+
 export const travelAuthorizationPreApprovalsApi = {
   STATUSES: TRAVEL_AUTHORIZATION_PRE_APPROVAL_STATUSES,
 
@@ -138,11 +165,7 @@ export const travelAuthorizationPreApprovalsApi = {
     return data
   },
 
-  async create(
-    attributes: Partial<TravelAuthorizationPreApproval> & {
-      profilesAttributes: Partial<TravelAuthorizationPreApprovalProfile>[]
-    }
-  ): Promise<{
+  async create(attributes: TravelAuthorizationPreApprovalCreationAttributes): Promise<{
     travelAuthorizationPreApproval: TravelAuthorizationPreApproval
   }> {
     const { data } = await http.post("/api/travel-authorization-pre-approvals", attributes)
@@ -151,7 +174,7 @@ export const travelAuthorizationPreApprovalsApi = {
 
   async update(
     travelAuthorizationPreApprovalId: number,
-    attributes: Partial<TravelAuthorizationPreApproval>
+    attributes: TravelAuthorizationPreApprovalUpdateAttributes
   ): Promise<{
     travelAuthorizationPreApproval: TravelAuthorizationPreApproval
   }> {

@@ -5,6 +5,7 @@ import {
   type QueryOptions,
   type WhereOptions,
 } from "@/api/base-api"
+import type { TravelAuthorizationPreApprovalProfileCreationAttributes } from "@/api/travel-authorization-pre-approval-profile-creation-attributes"
 import { type TravelAuthorizationPreApprovalAsReference } from "@/api/travel-authorization-pre-approvals-api"
 
 export type TravelAuthorizationPreApprovalProfile = {
@@ -63,30 +64,40 @@ export const travelAuthorizationPreApprovalProfilesApi = {
     return data
   },
 
-  async create(attributes: Partial<TravelAuthorizationPreApprovalProfile>): Promise<{
-    travelAuthorizationPreApprovalProfile: TravelAuthorizationPreApprovalProfile
-  }> {
-    const { data } = await http.post("/api/travel-authorization-pre-approval-profiles", attributes)
-    return data
-  },
-
-  async update(
-    travelAuthorizationPreApprovalProfileId: number,
-    attributes: Partial<TravelAuthorizationPreApprovalProfile>
+  async create(
+    travelAuthorizationPreApprovalId: number | string,
+    attributes: TravelAuthorizationPreApprovalProfileCreationAttributes
   ): Promise<{
     travelAuthorizationPreApprovalProfile: TravelAuthorizationPreApprovalProfileAsShow
-    policy: Policy
   }> {
-    const { data } = await http.patch(
-      `/api/travel-authorization-pre-approval-profiles/${travelAuthorizationPreApprovalProfileId}`,
+    const { data } = await http.post(
+      `/api/travel-authorization-pre-approvals/${travelAuthorizationPreApprovalId}/profiles`,
       attributes
     )
     return data
   },
 
-  async delete(travelAuthorizationPreApprovalProfileId: number): Promise<void> {
+  async update(
+    travelAuthorizationPreApprovalId: number | string,
+    travelAuthorizationPreApprovalProfileId: number,
+    attributes: Partial<TravelAuthorizationPreApprovalProfileCreationAttributes>
+  ): Promise<{
+    travelAuthorizationPreApprovalProfile: TravelAuthorizationPreApprovalProfileAsShow
+    policy: Policy
+  }> {
+    const { data } = await http.patch(
+      `/api/travel-authorization-pre-approvals/${travelAuthorizationPreApprovalId}/profiles/${travelAuthorizationPreApprovalProfileId}`,
+      attributes
+    )
+    return data
+  },
+
+  async delete(
+    travelAuthorizationPreApprovalId: number | string,
+    travelAuthorizationPreApprovalProfileId: number
+  ): Promise<void> {
     await http.delete(
-      `/api/travel-authorization-pre-approval-profiles/${travelAuthorizationPreApprovalProfileId}`
+      `/api/travel-authorization-pre-approvals/${travelAuthorizationPreApprovalId}/profiles/${travelAuthorizationPreApprovalProfileId}`
     )
   },
 }

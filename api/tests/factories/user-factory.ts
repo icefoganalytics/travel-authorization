@@ -3,7 +3,7 @@ import { faker } from "@faker-js/faker/locale/en_CA"
 
 import { User } from "@/models"
 
-export const userFactory = FactoryShark.define(User, ({ params }) => {
+const baseUserFactory = FactoryShark.define(User, ({ params }) => {
   const firstName = params.firstName || faker.person.firstName()
   const lastName = params.lastName || faker.person.lastName()
 
@@ -15,6 +15,16 @@ export const userFactory = FactoryShark.define(User, ({ params }) => {
     lastName,
     roles: [User.Roles.USER],
   }
+})
+
+export const userFactory = Object.assign(baseUserFactory, {
+  asAdmin() {
+    return baseUserFactory.params({ roles: [User.Roles.ADMIN] })
+  },
+
+  asPreApprovedTravelAdmin() {
+    return baseUserFactory.params({ roles: [User.Roles.PRE_APPROVED_TRAVEL_ADMIN] })
+  },
 })
 
 export default userFactory
