@@ -120,6 +120,7 @@ export type TravelAuthorization = {
   denialReason: string | null
   tripTypeEstimate: TravelAuthorizationTripTypes | null
   tripTypeActual: TravelAuthorizationTripTypes | null
+  finalDestinationLocationId: number | null
   travelAdvanceInCents: string | null
   allTravelWithinTerritory: boolean | null
   createdAt: string
@@ -182,6 +183,7 @@ export type TravelAuthorizationAsShow = Pick<
   | "denialReason"
   | "tripTypeEstimate"
   | "tripTypeActual"
+  | "finalDestinationLocationId"
   | "createdBy"
   | "travelAdvanceInCents"
   | "allTravelWithinTerritory"

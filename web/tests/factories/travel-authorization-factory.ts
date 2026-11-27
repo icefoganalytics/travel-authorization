@@ -82,6 +82,7 @@ export const travelAuthorizationFactory = TravelAuthorizationFactory.define(({ s
     denialReason: null,
     tripTypeEstimate: null,
     tripTypeActual: null,
+    finalDestinationLocationId: null,
     travelAdvanceInCents: null,
     allTravelWithinTerritory: null,
     createdAt: timestamp,

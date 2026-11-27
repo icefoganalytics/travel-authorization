@@ -31,6 +31,7 @@ export class IndexSerializer extends BaseSerializer<TravelSegment> {
 
   perform(): TravelSegmentIndexView {
     const departureTime = this.stripSeconds(this.record.departureTime)
+
     return {
       ...pick(this.record, [
         "id",
