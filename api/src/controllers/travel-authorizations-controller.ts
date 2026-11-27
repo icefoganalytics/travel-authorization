@@ -32,6 +32,7 @@ export class TravelAuthorizationsController extends BaseController<TravelAuthori
       const travelAuthorizations = await scopedTravelAuthorizations.findAll({
         where,
         include: [
+          "finalDestination",
           {
             association: "stops",
             separate: true,
