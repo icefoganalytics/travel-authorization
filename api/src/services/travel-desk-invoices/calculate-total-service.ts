@@ -3,7 +3,7 @@ import Big from "big.js"
 import { TravelDeskInvoiceItem } from "@/models"
 
 import BaseService from "@/services/base-service"
-import { InvoiceValidationError } from "@/services/travel-desk-invoices/invoice-validation-error"
+import { InvoiceValidationError } from "@/services/travel-desk-invoices"
 import { normalizeInvoiceAmount } from "@/utils/normalize-invoice-amount"
 
 const MAX_AMOUNT = new Big("999999999999999.999")
