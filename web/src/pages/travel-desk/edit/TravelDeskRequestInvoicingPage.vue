@@ -1,15 +1,15 @@
 <template>
-  <v-sheet>
-    <v-card>
-      <v-card-text> TODO: Invoicing tab content will be added here. </v-card-text>
-    </v-card>
-  </v-sheet>
+  <TravelDeskInvoicesWorkspaceContainer
+    :travel-desk-travel-request-id="travelDeskTravelRequestId"
+  />
 </template>
 
 <script setup lang="ts">
 import { computed } from "vue"
 
 import useBreadcrumbs from "@/use/use-breadcrumbs"
+
+import TravelDeskInvoicesWorkspaceContainer from "@/components/travel-desk-invoices/TravelDeskInvoicesWorkspaceContainer.vue"
 
 const props = defineProps<{
   travelDeskTravelRequestId: string
@@ -52,5 +52,3 @@ const breadcrumbs = computed(() => [
 ])
 useBreadcrumbs(breadcrumbs)
 </script>
-
-<style scoped></style>

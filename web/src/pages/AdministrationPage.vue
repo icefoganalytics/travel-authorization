@@ -21,7 +21,8 @@
     </v-col>
   </v-row>
 </template>
-<script setup>
+
+<script setup lang="ts">
 import useBreadcrumbs from "@/use/use-breadcrumbs"
 
 const menuCardLists = [
